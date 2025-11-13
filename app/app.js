@@ -3,9 +3,9 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import dbConnect from '../config/dbConnect.js';
-
-import noteRoutes from '../routes/temp2.js';
 import authRoutes from '../routes/temp.js';
+import noteRoutes from '../routes/temp2.js';
+
 const app = express();
 
 // --- Connect to MongoDB ---
