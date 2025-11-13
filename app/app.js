@@ -3,9 +3,8 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import dbConnect from '../config/dbConnect.js';
-import authRoutes from '../routes/AuthRoutes.js';
-import noteRoutes from '../routes/NoteRoutes.js';
-
+import authRoutes from '../routes/authRoutes.js';
+import noteRoutes from '../routes/noteRoutes.js';
 const app = express();
 
 // --- Connect to MongoDB ---
@@ -43,7 +42,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- Routes ---
+// --- Routes testing---
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
