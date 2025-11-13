@@ -8,60 +8,68 @@ import noteRoutes from '../routes/NoteRoutes.js';
 
 const app = express();
 
-// --- Connect to DB ---
+// --- Connect to MongoDB ---
 dbConnect();
 
 // --- Middleware ---
 app.use(express.json());
 
-// --- CORS Configuration ---
+// --- CORS Setup ---
 const allowedOrigins = [
-  process.env.CLIENT_URL, // your Netlify frontend (e.g., https://userprojectfrontend.netlify.app)
-  'http://localhost:3000', // local React dev
+  process.env.CLIENT_URL,   // Netlify frontend
+  'http://localhost:3000',
+  'http://localhost:5173',
 ].filter(Boolean);
 
 app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-        console.log(`CORS Success: Origin ${origin} allowed`);
-      return callback(null, true);
-    } else {
-      console.log(`CORS Error: Origin ${origin} not allowed`);
-      return callback(new Error('Not allowed by CORS'));
-    }
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // allow Postman, curl
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    console.log('CORS blocked for origin:', origin);
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
+  optionsSuccessStatus: 200
 }));
+
+// --- Handle preflight requests safely ---
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Origin', allowedOrigins.join(','));
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // --- Routes ---
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Mount routes with proper prefixes
-app.use('/api/auth', authRoutes);  // Handles /api/auth/register, /api/auth/login, etc.
-app.use('/api/notes', noteRoutes); // Handles /api/notes, /api/notes/:id, etc.
+app.use('/api/auth', authRoutes);   // /api/auth/register, /api/auth/login
+app.use('/api/notes', noteRoutes);  // /api/notes
 
-// --- Error Handling ---
-
-// 404 Not Found Handler
-const notFound = (req, res, next) => {
+// --- 404 handler ---
+app.use((req, res) => {
   res.status(404).json({ message: `Route - ${req.originalUrl} - not found` });
-};
+});
 
-// Global Error Handler (Must be the last middleware)
-const globalErrHandler = (err, req, res, next) => {
-  const stack = process.env.NODE_ENV === 'development' ? err.stack : undefined;
+// --- Global error handler ---
+app.use((err, req, res, next) => {
+  console.error(err.stack);
   res.status(err.statusCode || 500).json({
     status: 'fail',
     message: err.message,
-    stack,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
-};
+});
 
-app.use(notFound);
-app.use(globalErrHandler);
+// --- Start Server ---
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 export default app;
