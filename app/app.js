@@ -16,8 +16,8 @@ app.use(express.json());
 
 // --- CORS Configuration ---
 const allowedOrigins = [
-  process.env.CLIENT_URL,                   // your Netlify frontend
-  'http://localhost:3000',                 // local React dev
+  process.env.CLIENT_URL, // your Netlify frontend (e.g., https://userprojectfrontend.netlify.app)
+  'http://localhost:3000', // local React dev
 ].filter(Boolean);
 
 app.use(cors({
@@ -27,6 +27,7 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     } else {
+      console.log(`CORS Error: Origin ${origin} not allowed`);
       return callback(new Error('Not allowed by CORS'));
     }
   },
@@ -39,10 +40,17 @@ app.get('/api/health', (req, res) => {
 });
 
 // Mount routes with proper prefixes
-app.use('/api/auth', authRoutes);   // /api/auth/register, /api/auth/login
-app.use('/api/notes', noteRoutes);  // /api/notes
+app.use('/api/auth', authRoutes);  // Handles /api/auth/register, /api/auth/login, etc.
+app.use('/api/notes', noteRoutes); // Handles /api/notes, /api/notes/:id, etc.
 
 // --- Error Handling ---
+
+// 404 Not Found Handler
+const notFound = (req, res, next) => {
+  res.status(404).json({ message: `Route - ${req.originalUrl} - not found` });
+};
+
+// Global Error Handler (Must be the last middleware)
 const globalErrHandler = (err, req, res, next) => {
   const stack = process.env.NODE_ENV === 'development' ? err.stack : undefined;
   res.status(err.statusCode || 500).json({
@@ -50,10 +58,6 @@ const globalErrHandler = (err, req, res, next) => {
     message: err.message,
     stack,
   });
-};
-
-const notFound = (req, res, next) => {
-  res.status(404).json({ message: `Route - ${req.originalUrl} - not found` });
 };
 
 app.use(notFound);
