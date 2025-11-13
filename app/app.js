@@ -3,7 +3,8 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import dbConnect from '../config/dbConnect.js';
-import authRoutes from '../routes/AuthRoutes.js';
+import AuthRoutes from '../routes/AuthRoutes.js';
+import NoteRoutes from '../routes/NoteRoutes.js';
 import noteRoutes from '../routes/NoteRoutes.js';
 
 
@@ -35,7 +36,7 @@ app.use(
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });
-app.use('/api', authRoutes); // Auth routes: /api/auth/register, /api/auth/login
+app.use('/api', AuthRoutes); // Auth routes: /api/auth/register, /api/auth/login
 app.use('/api', noteRoutes); // Note routes: /api/notes
 
 // --- Custom Error Handler Middleware ---
