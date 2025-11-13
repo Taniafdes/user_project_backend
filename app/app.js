@@ -3,8 +3,9 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import dbConnect from '../config/dbConnect.js';
-import authRoutes from '../routes/authRoutes.js';
-import noteRoutes from '../routes/noteRoutes.js';
+
+import noteRoutes from '../routes/temp2.js';
+import authRoutes from '../routes/temp.js';
 const app = express();
 
 // --- Connect to MongoDB ---
@@ -47,8 +48,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/api/auth', authRoutes);   // /api/auth/register, /api/auth/login
-app.use('/api/notes', noteRoutes);  // /api/notes
+
+app.use('/api/auth', authRoutes);
+app.use('/api/notes', noteRoutes);
 
 // --- 404 handler ---
 app.use((req, res) => {
