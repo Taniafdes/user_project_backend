@@ -45,7 +45,7 @@ app.use((req, res, next) => {
 
 
 app.use('/api/auth', authRoutes);
-app.use('/api', noteRoutes);
+app.use('/api/notes', noteRoutes);
 
 // --- 404 handler ---
 app.use((req, res) => {
