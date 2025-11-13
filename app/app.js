@@ -3,8 +3,8 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import dbConnect from '../config/dbConnect.js';
-import authRoutes from '../routes/temp.js';
-import noteRoutes from '../routes/temp2.js';
+import authRoutes from '../routes/authRoutes.js';
+import noteRoutes from '../routes/noteRoutes.js';
 
 const app = express();
 
